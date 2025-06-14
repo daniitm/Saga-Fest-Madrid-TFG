@@ -22,8 +22,8 @@ class DatabaseSeeder extends Seeder
                 //CelebritySeeder::class,
                 //TicketSeeder::class,
                 //SpaceSeeder::class,
-                //TurnSeeder::class,
-                //ScheduleSeeder::class,
+                TurnSeeder::class,
+                ScheduleSeeder::class,
                 //EventSeeder::class,
             ]);
         } else {
