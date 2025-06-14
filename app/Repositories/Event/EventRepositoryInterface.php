@@ -20,7 +20,6 @@ interface EventRepositoryInterface
     
     public function create(array $data): Event;
     
-    
     public function update(Event $event, array $data): Event;
     
     public function delete(Event $event): bool;
@@ -28,4 +27,9 @@ interface EventRepositoryInterface
     public function deleteById($id): bool;
 
     public function countByStandCategory(string $standCategory): int;
+
+    public function countByImageExceptId(string $image, $exceptId): int;
+    public function countByImage(string $image): int;
+
+    public function paginateWithSearch(?string $search, int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator;
 }

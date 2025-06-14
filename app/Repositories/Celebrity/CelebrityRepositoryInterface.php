@@ -107,4 +107,13 @@ interface CelebrityRepositoryInterface
      * @return Collection
      */
     public function getAvailableForEvent(string $date, string $turnName, string $startTime, string $endTime, ?int $excludeEventId = null): Collection;
+
+    /**
+     * Get paginated list of celebrities with search
+     *
+     * @param  string|null  $search  Search term
+     * @param  int  $perPage  Number of items per page
+     * @return LengthAwarePaginator
+     */
+    public function paginateWithSearch(?string $search, int $perPage = 10): LengthAwarePaginator;
 }

@@ -23,6 +23,10 @@ class Event extends Model
         'event_end_time',   
         'space_id',
         'schedule_id',
+        'short_description',
+        'description',
+        'image',
+        'type',
     ];
 
     // Relaciones

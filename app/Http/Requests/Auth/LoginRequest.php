@@ -33,6 +33,20 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Get the custom validation messages for the request.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'El correo electrónico debe ser una dirección válida.',
+            'password.required' => 'La contraseña es obligatoria.',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws \Illuminate\Validation\ValidationException
@@ -43,9 +57,8 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Estas credenciales no son correctas.',
             ]);
         }
 

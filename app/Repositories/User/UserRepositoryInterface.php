@@ -11,4 +11,9 @@ interface UserRepositoryInterface
     public function all();
     
     public function find($id);
+
+    /**
+     * Return paginated users with paid purchases count as purchases_count attribute.
+     */
+    public function paginateWithPurchasesCount(int $perPage = 10, array $filters = []);
 }

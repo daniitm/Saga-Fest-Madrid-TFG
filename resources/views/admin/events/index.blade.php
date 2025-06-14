@@ -19,13 +19,23 @@
                         </div>
                     </div>
 
+                    <form method="GET" action="{{ route('admin.events.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3 items-center">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre de empresa..." class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-80 focus:ring-primary focus:border-primary">
+                        <button type="submit" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md font-semibold">Buscar</button>
+                    </form>
+
                     @if ($events->isEmpty())
                         <div class="bg-gray-100 border border-gray-300 rounded-xl p-10 text-center shadow-2xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-6 opacity-80 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h3.5a1.5 1.5 0 003 0H17a2 2 0 012 2v12a2 2 0 01-2 2z" />
-                            </svg>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay eventos registrados</h3>
-                            <p class="text-gray-600 mb-6">Comienza agregando tu primer evento al sistema</p>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                @if(request('search'))
+                                    Evento no encontrado
+                                @else
+                                    No hay eventos registrados
+                                @endif
+                            </h3>
+                            @unless(request('search'))
+                                <p class="text-gray-600 mb-6">Comienza agregando tu primer evento al sistema</p>
+                            @endunless
                         </div>
                     @else
                         <!-- Vista móvil: tarjetas -->
@@ -47,15 +57,11 @@
                                            class="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold rounded transition duration-200">
                                             Editar
                                         </a>
-                                        <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200"
-                                                onclick="return confirm('¿Seguro que deseas eliminar este evento?')">
-                                                Eliminar
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openDeleteModal('{{ route('admin.events.destroy', $event) }}')"
+                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200">
+                                            Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -89,15 +95,11 @@
                                                        class="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold rounded transition duration-200">
                                                         Editar
                                                     </a>
-                                                    <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200"
-                                                            onclick="return confirm('¿Seguro que deseas eliminar este evento?')">
-                                                            Eliminar
-                                                        </button>
-                                                    </form>
+                                                    <button type="button"
+                                                        onclick="openDeleteModal('{{ route('admin.events.destroy', $event) }}')"
+                                                        class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200">
+                                                        Eliminar
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -111,4 +113,5 @@
             </div>
         </div>
     </div>
+    <x-delete-modal />
 </x-app-layout>

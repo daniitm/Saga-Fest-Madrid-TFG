@@ -28,8 +28,29 @@ $width = match ($width) {
             class="absolute z-50 mt-2 {{ $width }} rounded-md shadow-lg {{ $alignmentClasses }}"
             style="display: none;"
             @click="open = false">
-        <div class="rounded-md ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
-            {{ $content }}
+        <div class="rounded-md ring-1 ring-black ring-opacity-5 bg-[#7692FF]">
+            <style>
+                .dropdown-link, .dropdown-link:visited {
+                    color: #fff !important;
+                    background: transparent !important;
+                    border-radius: 0 !important;
+                }
+                .dropdown-link:first-child {
+                    border-top-left-radius: 0.375rem !important;
+                    border-top-right-radius: 0.375rem !important;
+                }
+                .dropdown-link:last-child {
+                    border-bottom-left-radius: 0.375rem !important;
+                    border-bottom-right-radius: 0.375rem !important;
+                }
+                .dropdown-link:hover, .dropdown-link:focus, .dropdown-link[aria-current="page"] {
+                    background-color: #1B2CC1 !important;
+                    color: #fff !important;
+                }
+            </style>
+            <div class="text-white">
+                {{ $content }}
+            </div>
         </div>
     </div>
 </div>

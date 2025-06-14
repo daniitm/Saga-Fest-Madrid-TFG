@@ -105,4 +105,16 @@ class EloquentCelebrityRepository implements CelebrityRepositoryInterface
 
         return Celebrity::whereNotIn('id', $busyCelebrityIds)->orderBy('name')->get();
     }
+
+    public function paginateWithSearch(?string $search, int $perPage = 10): LengthAwarePaginator
+    {
+        $query = Celebrity::query();
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('surnames', 'like', "%{$search}%");
+            });
+        }
+        return $query->orderBy('id', 'desc')->paginate($perPage);
+    }
 }

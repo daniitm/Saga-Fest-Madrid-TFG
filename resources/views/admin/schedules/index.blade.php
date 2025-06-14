@@ -17,9 +17,6 @@
                     </div>
                     @if ($schedules->isEmpty())
                         <div class="bg-gray-100 border border-gray-300 rounded-xl p-10 text-center shadow-2xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-6 opacity-80 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10m-7 4h4" />
-                            </svg>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay horarios registrados</h3>
                             <p class="text-gray-600 mb-6">Comienza agregando tu primer horario al sistema</p>
                         </div>

@@ -20,7 +20,7 @@ class SpaceController extends Controller
         $areas = ['P0', 'C1', 'C2'];
         $counts = [];
         foreach ($areas as $area) {
-            $counts[$area] = \App\Models\Space::where('location_area', $area)->count();
+            $counts[$area] = $this->spaces->countByArea($area);
         }
         return view('admin.spaces.index', compact('counts'));
     }
@@ -47,7 +47,13 @@ class SpaceController extends Controller
         $area = $data['location_area'];
         $size = $data['space_size'];
         $quantity = $data['quantity'];
-        $currentCount = \App\Models\Space::where('location_area', $area)->count();
+        $currentCount = $this->spaces->countByArea($area);
+        if ($currentCount >= 50) {
+            return redirect()->route('admin.spaces.index')->with('toast', [
+                'type' => 'warning',
+                'message' => 'No se pueden crear más espacios en el área ' . $area . ' porque ya hay 50 o más.'
+            ]);
+        }
         $toCreate = min($quantity, 50 - $currentCount);
         $created = 0;
         for ($i = 0; $i < $toCreate; $i++) {
@@ -60,9 +66,15 @@ class SpaceController extends Controller
             $created++;
         }
         if ($created < $quantity) {
-            return redirect()->route('admin.spaces.index')->with('warning', 'Solo se crearon ' . $created . ' espacios porque el área ya tiene 50.');
+            return redirect()->route('admin.spaces.index')->with('toast', [
+                'type' => 'warning',
+                'message' => 'Solo se crearon ' . $created . ' espacios porque el área ya tiene 50.'
+            ]);
         }
-        return redirect()->route('admin.spaces.index')->with('success', 'Espacios creados correctamente.');
+        return redirect()->route('admin.spaces.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Espacios creados correctamente.'
+        ]);
     }
 
     public function delete()
@@ -84,17 +96,16 @@ class SpaceController extends Controller
         ]);
         $area = $data['location_area'];
         $quantity = $data['quantity'];
-        $spaces = \App\Models\Space::where('location_area', $area)
-            ->whereDoesntHave('events')
-            ->orderBy('id')
-            ->limit($quantity)
-            ->get();
+        $spaces = $this->spaces->all()->where('location_area', $area)
+            ->filter(function($space) { return $space->events->isEmpty(); })
+            ->sortBy('id')
+            ->take($quantity);
         if ($spaces->count() < $quantity) {
-            return redirect()->route('admin.spaces.index')->with('warning', 'No hay suficientes espacios libres para eliminar. Solo hay ' . $spaces->count() . ' espacios sin eventos asignados.');
+            return redirect()->route('admin.spaces.index')->with('toast', ['type' => 'warning', 'message' => 'No hay suficientes espacios libres para eliminar. Solo hay ' . $spaces->count() . ' espacios sin eventos asignados.']);
         }
         foreach ($spaces as $space) {
-            $space->delete();
+            $this->spaces->delete($space);
         }
-        return redirect()->route('admin.spaces.index')->with('success', 'Espacios eliminados correctamente.');
+        return redirect()->route('admin.spaces.index')->with('toast', ['type' => 'success', 'message' => 'Espacios eliminados correctamente.']);
     }
 }

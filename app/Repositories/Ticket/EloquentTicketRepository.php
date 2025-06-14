@@ -59,4 +59,38 @@ class EloquentTicketRepository implements TicketRepositoryInterface
             ->limit($limit)
             ->get();
     }
+
+    public function getAvailableByTypeWithLimit(string $type, int $limit): Collection
+    {
+        return Ticket::where('type', $type)
+            ->whereDoesntHave('purchases', function($q) {
+                $q->where('status', 'paid');
+            })
+            ->orderBy('id', 'asc')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getGroupedTypes(): Collection
+    {
+        return Ticket::selectRaw('MIN(id) as id, type, price')
+            ->whereIn('type', ['General', 'Premium'])
+            ->groupBy('type', 'price')
+            ->get();
+    }
+
+    public function getStockCount(): int
+    {
+        return Ticket::whereDoesntHave('purchases', function($q) {
+            $q->where('status', 'paid');
+        })->count();
+    }
+
+    public function getStockCountByType(string $type): int
+    {
+        return Ticket::where('type', $type)
+            ->whereDoesntHave('purchases', function($q) {
+                $q->where('status', 'paid');
+            })->count();
+    }
 }

@@ -43,7 +43,7 @@ class TurnController extends Controller
 
         $this->turns->create($data);
 
-        return redirect()->route('admin.turns.index')->with('success', 'Turno creado correctamente.');
+        return redirect()->route('admin.turns.index')->with('toast', ['type' => 'success', 'message' => 'Turno creado correctamente.']);
     }
 
     public function edit($id)
@@ -65,7 +65,7 @@ class TurnController extends Controller
 
         $this->turns->update($turn, $data);
 
-        return redirect()->route('admin.turns.index')->with('success', 'Turno actualizado correctamente.');
+        return redirect()->route('admin.turns.index')->with('toast', ['type' => 'success', 'message' => 'Turno actualizado correctamente.']);
     }
 
     public function destroy($id)
@@ -73,6 +73,6 @@ class TurnController extends Controller
         $turn = $this->turns->find($id);
         $this->turns->delete($turn);
 
-        return redirect()->route('admin.turns.index')->with('success', 'Turno eliminado correctamente.');
+        return redirect()->route('admin.turns.index')->with('toast', ['type' => 'success', 'message' => 'Turno eliminado correctamente.']);
     }
 }

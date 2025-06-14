@@ -115,6 +115,10 @@ class EventSeeder extends Seeder
                     'event_end_time' => $eventEnd,
                     'space_id' => $freeSpace->id,
                     'schedule_id' => $schedule->id,
+                    'short_description' => $faker->realTextBetween(100, 255),
+                    'description' => $faker->realText(1100),
+                    'image' => 'imagen_perfil.png',
+                    'type' => $faker->randomElement(['General', 'Premium']),
                 ]);
                 $event->celebrities()->sync($selectedCelebs);
                 $eventCount++;

@@ -1,4 +1,4 @@
-@props(['title', 'content'])
+@props(['title' => 'Confirmar eliminación', 'content' => '¿Seguro que desea eliminar este elemento?'])
 
 <div id="deleteModal"
     class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 overflow-y-auto py-4">
@@ -30,7 +30,7 @@
                         </button>
                         <button id="confirmDelete"
                             class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 font-medium rounded-lg transition-colors duration-200">
-                            Si, Eliminar
+                            Eliminar
                         </button>
                     </div>
                 </div>
@@ -38,3 +38,38 @@
         </div>
     </div>
 </div>
+<script>
+let deleteAction = null;
+function openDeleteModal(action) {
+    deleteAction = action;
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('cancelDelete');
+    const confirmBtn = document.getElementById('confirmDelete');
+    if (cancelBtn) {
+        cancelBtn.onclick = closeDeleteModal;
+    }
+    if (confirmBtn) {
+        confirmBtn.onclick = function() {
+            if (deleteAction) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = deleteAction;
+                form.innerHTML = `@csrf @method('DELETE')`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        };
+    }
+});
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+</script>

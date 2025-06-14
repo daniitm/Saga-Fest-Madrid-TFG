@@ -10,14 +10,17 @@ use App\Http\Controllers\Admin\SpaceController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BuyTicketsController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\UserTicketsController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\WantExposeController;
+use App\Http\Controllers\Admin\ExpositionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/celebrities', [HomeController::class, 'showCelebrities'])->name('celebrities.all');
 Route::get('/celebrity/{id}', [HomeController::class, 'showCelebrity'])->name('celebrity.show');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/event/{id}', [HomeController::class, 'showEvent'])->name('event.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,6 +40,13 @@ Route::get('/legal-advise', function () {
     return view('legal-advise');
 })->name('legal-advise');
 
+Route::get('/frequently-questions', function () {
+    return view('frequently-questions');
+})->name('frequently-questions');
+
+Route::get('/who-organises', function () {
+    return view('who-organises');
+})->name('who-organises');
 
 // Ruta pública para fetch de celebridades disponibles por token
 Route::get('admin/events/available-celebrities', [EventController::class, 'availableCelebrities']);
@@ -50,6 +60,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::resource('events', EventController::class); 
     Route::resource('spaces', SpaceController::class)->except(['show', 'edit', 'update']); 
     Route::resource('schedules', ScheduleController::class); 
+    Route::resource('expositions', ExpositionController::class);
+    Route::get('expositors', [\App\Http\Controllers\Admin\ExpositorController::class, 'index'])->name('expositors.index');
     // Rutas personalizadas para edición de turnos y descanso
     Route::get('schedules/{schedule}/edit-turn', [ScheduleController::class, 'editTurn'])->name('schedules.edit-turn');
     Route::put('schedules/{schedule}/update-turn', [ScheduleController::class, 'updateTurn'])->name('schedules.updateTurn');
@@ -61,5 +73,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::delete('tickets/delete', [TicketController::class, 'destroy'])->name('tickets.destroy');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/buy-ticket', [PurchaseController::class, 'store'])->name('purchase.store');
+    Route::get('/my-tickets', [UserTicketsController::class, 'index'])->name('user.tickets');
+});
+
+Route::get('/buy-ticket', BuyTicketsController::class)->name('buy-ticket');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/want-expose', [WantExposeController::class, 'show'])->name('want-expose');
+Route::post('/want-expose', [WantExposeController::class, 'submit'])->name('want-expose.submit');
 
 require __DIR__.'/auth.php';

@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Schedule\ScheduleRepositoryInterface;
-use App\Models\Turn;
+use App\Repositories\Turn\TurnRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
     private ScheduleRepositoryInterface $schedules;
+    private $turns;
 
-    public function __construct(ScheduleRepositoryInterface $schedules)
+    public function __construct(ScheduleRepositoryInterface $schedules, TurnRepositoryInterface $turns)
     {
         $this->schedules = $schedules;
+        $this->turns = $turns;
     }
 
     public function index()
@@ -30,7 +32,7 @@ class ScheduleController extends Controller
 
     public function create()
     {
-        $turns = Turn::orderBy('date')->orderBy('start_time')->get();
+        $turns = $this->turns->all();
         return view('admin.schedules.create', compact('turns'));
     }
 
@@ -43,13 +45,13 @@ class ScheduleController extends Controller
 
         $this->schedules->create($data);
 
-        return redirect()->route('admin.schedules.index')->with('success', 'Horario creado correctamente.');
+        return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'success', 'message' => 'Horario creado correctamente.']);
     }
 
     public function edit($id)
     {
         $schedule = $this->schedules->find($id);
-        $turns = Turn::orderBy('date')->orderBy('start_time')->get();
+        $turns = $this->turns->all();
         return view('admin.schedules.edit', compact('schedule', 'turns'));
     }
 
@@ -64,7 +66,7 @@ class ScheduleController extends Controller
 
         $this->schedules->update($schedule, $data);
 
-        return redirect()->route('admin.schedules.index')->with('success', 'Horario actualizado correctamente.');
+        return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'success', 'message' => 'Horario actualizado correctamente.']);
     }
 
     public function destroy($id)
@@ -72,7 +74,7 @@ class ScheduleController extends Controller
         $schedule = $this->schedules->find($id);
         $this->schedules->delete($schedule);
 
-        return redirect()->route('admin.schedules.index')->with('success', 'Horario eliminado correctamente.');
+        return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'success', 'message' => 'Horario eliminado correctamente.']);
     }
 
     // Editar solo las horas del turno
@@ -81,7 +83,7 @@ class ScheduleController extends Controller
         $schedule = $this->schedules->find($id);
         $eventsCount = $schedule->events()->count();
         if ($eventsCount > 0) {
-            return redirect()->route('admin.schedules.index')->with('toast', 'No se puede editar el horario porque ya existe al menos un evento creado.');
+            return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'warning', 'message' => 'No se puede editar el horario porque ya existe al menos un evento creado.']);
         }
         return view('admin.schedules.edit-turn', compact('schedule', 'eventsCount'));
     }
@@ -115,7 +117,7 @@ class ScheduleController extends Controller
         $turn->start_time = $data['start_time'];
         $turn->end_time = $data['end_time'];
         $turn->save();
-        return redirect()->route('admin.schedules.index')->with('success', 'Horario del turno actualizado correctamente.');
+        return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'success', 'message' => 'Horario del turno actualizado correctamente.']);
     }
 
     // Editar solo los minutos de descanso
@@ -124,13 +126,21 @@ class ScheduleController extends Controller
         $schedule = $this->schedules->find($id);
         $eventsCount = $schedule->events()->count();
         if ($eventsCount > 0) {
-            return redirect()->route('admin.schedules.index')->with('toast', 'No se puede editar el descanso porque ya existe al menos un evento creado.');
+            return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'warning', 'message' => 'No se puede editar el descanso porque ya existe al menos un evento creado.']);
         }
         return view('admin.schedules.edit-break', compact('schedule', 'eventsCount'));
     }
 
     public function updateBreak(Request $request, $id)
     {
+        // No permitir editar el descanso si hay al menos un evento creado
+        if (\App\Models\Event::count() > 0) {
+            return redirect()->route('admin.schedules.index')->with('toast', [
+                'type' => 'warning',
+                'message' => 'No se puede editar el tiempo de descanso porque ya existe al menos un evento creado.'
+            ]);
+        }
+
         $data = $request->validate([
             'break' => 'required|integer|min:5|max:15',
         ], [
@@ -141,6 +151,6 @@ class ScheduleController extends Controller
         ]);
         // Actualizar el break en todos los schedules
         \App\Models\Schedule::query()->update(['break' => $data['break']]);
-        return redirect()->route('admin.schedules.index')->with('success', 'Minutos de descanso actualizados para todos los turnos y días.');
+        return redirect()->route('admin.schedules.index')->with('toast', ['type' => 'success', 'message' => 'Minutos de descanso actualizados para todos los turnos y días.']);
     }
 }

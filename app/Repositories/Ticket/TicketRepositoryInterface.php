@@ -23,4 +23,21 @@ interface TicketRepositoryInterface
     public function delete(Ticket $ticket): bool;
 
     public function getByTypeWithLimit(string $type, int $limit): Collection;
+
+    public function getAvailableByTypeWithLimit(string $type, int $limit): Collection;
+
+    /**
+     * Get ticket types with min id and price grouped by type and price.
+     */
+    public function getGroupedTypes(): Collection;
+
+    /**
+     * Get the count of tickets in stock (not purchased/paid).
+     */
+    public function getStockCount(): int;
+
+    /**
+     * Get the count of tickets in stock for a specific type.
+     */
+    public function getStockCountByType(string $type): int;
 }

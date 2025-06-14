@@ -22,15 +22,24 @@
                         </div>
                     </div>
 
+                    <!-- Formulario de búsqueda -->
+                    <form method="GET" action="{{ route('admin.celebrities.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3 items-center">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o apellidos..." class="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-80 focus:ring-primary focus:border-primary">
+                        <button type="submit" class="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md font-semibold">Buscar</button>
+                    </form>
+
                     @if ($celebrities->isEmpty())
                         <div class="bg-gray-100 border border-gray-300 rounded-xl p-10 text-center shadow-2xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-6 opacity-80 text-gray-400"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            </svg>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay celebrities registradas</h3>
-                            <p class="text-gray-600 mb-6">Comienza agregando tu primera celebrity al sistema</p>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                                @if(request('search'))
+                                    Celebridad no encontrada
+                                @else
+                                    No hay celebrities registradas
+                                @endif
+                            </h3>
+                            @unless(request('search'))
+                                <p class="text-gray-600 mb-6">Comienza agregando tu primera celebrity al sistema</p>
+                            @endunless
                         </div>
                     @else
                         <!-- Vista móvil: tarjetas -->
@@ -56,15 +65,11 @@
                                            class="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold rounded transition duration-200">
                                             Editar
                                         </a>
-                                        <form action="{{ route('admin.celebrities.destroy', $celebrity) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200"
-                                                onclick="return confirm('¿Seguro que deseas eliminar esta celebridad?')">
-                                                Eliminar
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openDeleteModal('{{ route('admin.celebrities.destroy', $celebrity) }}')"
+                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200">
+                                            Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -111,13 +116,11 @@
                                                        class="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold rounded transition duration-200">
                                                         Editar
                                                     </a>
-                                                    <form action="{{ route('admin.celebrities.destroy', $celebrity) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200">                                                            Eliminar
-                                                        </button>
-                                                    </form>
+                                                    <button type="button"
+                                                        onclick="openDeleteModal('{{ route('admin.celebrities.destroy', $celebrity) }}')"
+                                                        class="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition duration-200">
+                                                        Eliminar
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -131,7 +134,5 @@
             </div>
         </div>
     </div>
-
-    <x-delete-modal title="Confirmar eliminación"
-        content="¿Estás seguro que deseas eliminar esta celebridad? Esta acción no se puede deshacer." />
+    <x-delete-modal />
 </x-app-layout>

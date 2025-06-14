@@ -4,28 +4,25 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Ticket\TicketRepositoryInterface;
+use App\Repositories\Purchase\PurchaseRepositoryInterface;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
     private TicketRepositoryInterface $tickets;
+    private PurchaseRepositoryInterface $purchases;
 
-    public function __construct(TicketRepositoryInterface $tickets)
+    public function __construct(TicketRepositoryInterface $tickets, PurchaseRepositoryInterface $purchases)
     {
         $this->tickets = $tickets;
+        $this->purchases = $purchases;
     }
 
     public function index()
     {
         $tickets = $this->tickets->paginate(15);
-
-        $tipos = \App\Models\Ticket::selectRaw('MIN(id) as id, type, price')
-            ->whereIn('type', ['General', 'Premium'])
-            ->groupBy('type', 'price')
-            ->get();
-
-        $stock = \App\Models\Ticket::count(); // Todas las entradas en stock
-
+        $tipos = $this->tickets->getGroupedTypes();
+        $stock = $this->tickets->getStockCount();
         return view('admin.tickets.index', compact('tickets', 'tipos', 'stock'));
     }
 
@@ -50,20 +47,22 @@ class TicketController extends Controller
 
         $typesToAdd = [$data['type']];
         if (!empty($data['apply_to_both']) && $data['apply_to_both']) {
-            // Si aplica a ambos tipos, agregamos ambos
             $typesToAdd = ['General', 'Premium'];
         }
 
         foreach ($typesToAdd as $type) {
+            // Obtener el precio actual para el tipo, si existe
+            $lastTicket = $this->tickets->all()->where('type', $type)->sortByDesc('id')->first();
+            $price = $lastTicket ? $lastTicket->price : ($type === 'Premium' ? 74.99 : 49.99);
             for ($i = 0; $i < $data['quantity']; $i++) {
                 $this->tickets->create([
                     'type' => $type,
-                    'price' => $type === 'Premium' ? 74.99 : 49.99,
+                    'price' => $price,
                 ]);
             }
         }
 
-        return redirect()->route('admin.tickets.index')->with('success', 'Entradas agregadas correctamente.');
+        return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'success', 'message' => 'Entradas agregadas correctamente.']);
     }
 
     public function delete()
@@ -73,6 +72,14 @@ class TicketController extends Controller
 
     public function destroy(Request $request)
     {
+        // No permitir eliminar si hay compras
+        if ($this->purchases->existsPaid()) {
+            return redirect()->route('admin.tickets.index')->with('toast', [
+                'type' => 'warning',
+                'message' => 'No se pueden eliminar entradas porque ya existe al menos una compra realizada.'
+            ]);
+        }
+
         $data = $request->validate([
             'type' => 'required|in:General,Premium',
             'quantity' => 'required|integer|min:1',
@@ -92,43 +99,48 @@ class TicketController extends Controller
         $totalDeleted = 0;
         $warnings = [];
         foreach ($typesToDelete as $type) {
-            $tickets = \App\Models\Ticket::where('type', $type)
-                ->orderBy('id')
-                ->limit($data['quantity'])
-                ->get();
+            $tickets = $this->tickets->all()->where('type', $type)->sortBy('id')->take($data['quantity']);
             if ($tickets->count() < $data['quantity']) {
                 $warnings[] = "Solo se han encontrado {$tickets->count()} entradas de tipo {$type} para eliminar.";
             }
             foreach ($tickets as $ticket) {
-                $ticket->delete();
+                $this->tickets->delete($ticket);
                 $totalDeleted++;
             }
         }
 
         if ($totalDeleted === 0) {
-            return redirect()->route('admin.tickets.index')->with('warning', 'No hay suficientes entradas para eliminar.');
+            return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'warning', 'message' => 'No hay suficientes entradas para eliminar.']);
         }
         $msg = 'Entradas eliminadas correctamente.';
         if ($warnings) {
             $msg .= ' ' . implode(' ', $warnings);
         }
-        return redirect()->route('admin.tickets.index')->with('success', $msg);
+        return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'success', 'message' => $msg]);
     }
 
     public function edit($id)
     {
         $ticket = $this->tickets->find($id);
         if (!$ticket) {
-            return redirect()->route('admin.tickets.index')->with('warning', 'Ticket no encontrado.');
+            return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'warning', 'message' => 'Ticket no encontrado.']);
         }
         return view('admin.tickets.edit', compact('ticket'));
     }
 
     public function update(Request $request, $id)
     {
+        // No permitir editar precio si hay compras
+        if ($this->purchases->existsPaid()) {
+            return redirect()->route('admin.tickets.index')->with('toast', [
+                'type' => 'warning',
+                'message' => 'No se puede editar el precio porque ya existe al menos una compra realizada.'
+            ]);
+        }
+
         $ticket = $this->tickets->find($id);
         if (!$ticket) {
-            return redirect()->route('admin.tickets.index')->with('warning', 'Ticket no encontrado.');
+            return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'warning', 'message' => 'Ticket no encontrado.']);
         }
         $data = $request->validate([
             'price' => 'required|numeric|min:25|max:100',
@@ -139,7 +151,9 @@ class TicketController extends Controller
             'price.max' => 'El precio no puede ser mayor que 100€.',
         ]);
         // Actualiza el precio de todas las entradas de ese tipo
-        \App\Models\Ticket::where('type', $ticket->type)->update(['price' => $data['price']]);
-        return redirect()->route('admin.tickets.index')->with('success', 'Precio actualizado correctamente en todas las entradas de tipo ' . $ticket->type . '.');
+        $this->tickets->all()->where('type', $ticket->type)->each(function($t) use ($data) {
+            $this->tickets->update($t, ['price' => $data['price']]);
+        });
+        return redirect()->route('admin.tickets.index')->with('toast', ['type' => 'success', 'message' => 'Precio actualizado correctamente en todas las entradas de tipo ' . $ticket->type . '.']);
     }
 }

@@ -17,7 +17,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = $this->users->paginate(15, ['role' => 'user']);
+        $users = $this->users->paginateWithPurchasesCount(15, ['role' => 'user']);
         return view('admin.users.index', compact('users'));
     }
 

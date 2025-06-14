@@ -35,4 +35,15 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         return User::find($id);
     }
+    
+    public function paginateWithPurchasesCount(int $perPage = 10, array $filters = [])
+    {
+        $query = User::query();
+        if (isset($filters['role'])) {
+            $query->where('role', $filters['role']);
+        }
+        return $query->withCount(['purchases as purchases_count' => function($q) {
+            $q->where('status', 'paid');
+        }])->orderBy('id', 'desc')->paginate($perPage);
+    }
 }

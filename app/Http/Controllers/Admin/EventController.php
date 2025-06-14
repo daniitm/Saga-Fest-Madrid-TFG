@@ -8,8 +8,10 @@ use App\Repositories\Celebrity\CelebrityRepositoryInterface;
 use App\Repositories\Schedule\ScheduleRepositoryInterface;
 use App\Repositories\Turn\TurnRepositoryInterface;
 use App\Repositories\Space\SpaceRepositoryInterface;
+use App\Repositories\Exposition\ExpositionRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class EventController extends Controller
@@ -19,25 +21,29 @@ class EventController extends Controller
     private ScheduleRepositoryInterface $schedules;
     private TurnRepositoryInterface $turns;
     private SpaceRepositoryInterface $spaces;
+    private ExpositionRepositoryInterface $expositions;
 
     public function __construct(
         EventRepositoryInterface $events,
         CelebrityRepositoryInterface $celebrities,
         ScheduleRepositoryInterface $schedules,
         TurnRepositoryInterface $turns,
-        SpaceRepositoryInterface $spaces
+        SpaceRepositoryInterface $spaces,
+        ExpositionRepositoryInterface $expositions
     ) {
         $this->events = $events;
         $this->celebrities = $celebrities;
         $this->schedules = $schedules;
         $this->turns = $turns;
         $this->spaces = $spaces;
+        $this->expositions = $expositions;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $events = $this->events->paginate(15);
-        return view('admin.events.index', compact('events'));
+        $search = $request->input('search');
+        $events = $this->events->paginateWithSearch($search, 15);
+        return view('admin.events.index', compact('events', 'search'));
     }
 
     public function create(Request $request)
@@ -98,6 +104,10 @@ class EventController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
             'celebrities' => 'required|array|min:1|max:5',
             'celebrities.*' => 'exists:celebrities,id',
+            'short_description' => 'required|string|min:100|max:255',
+            'description' => 'required|string|min:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'type' => 'required|in:General,Premium',
         ],  [
             'company_name.required' => 'El nombre de la empresa es obligatorio.',
             'company_name.regex' => 'El nombre de la empresa solo puede contener letras y espacios.',
@@ -128,66 +138,137 @@ class EventController extends Controller
             'celebrities.required' => 'Debes seleccionar al menos una celebridad.',
             'celebrities.min' => 'Debes seleccionar al menos una celebridad.',
             'celebrities.max' => 'No puedes seleccionar más de 5 celebridades.',
+            'short_description.required' => 'La descripción corta es obligatoria.',
+            'short_description.min' => 'La descripción corta debe tener al menos 100 caracteres.',
+            'short_description.max' => 'La descripción corta no puede superar los 255 caracteres.',
+            'description.required' => 'La descripción es obligatoria.',
+            'description.min' => 'La descripción debe tener al menos 1000 caracteres.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'image.mimes' => 'La imagen debe ser jpeg, png o jpg.',
+            'image.max' => 'La imagen no puede superar los 2MB.',
+            'type.required' => 'El tipo de evento es obligatorio.',
+            'type.in' => 'El tipo debe ser General o Premium.',
+            'website.url' => 'El sitio web debe ser una URL válida.',
         ]);
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $hash = md5_file($file->getRealPath());
+            $extension = $file->getClientOriginalExtension();
+            $filename = $hash . '.' . $extension;
+            $path = 'img/events/' . $filename;
+            if (!Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->putFileAs('img/events', $file, $filename);
+            }
+            $data['image'] = $path;
+        } else {
+            $data['image'] = 'img/events/imagen_perfil.png';
+        }
 
         // Buscar el turno real según fecha y nombre
         $turnModel = $this->turns->all()->where('date', $data['date'])->where('name', $data['turno'])->first();
         if (!$turnModel) {
+            session()->flash('toast', [
+                'type' => 'warning',
+                'message' => 'No existe el turno seleccionado para la fecha.'
+            ]);
             return back()->withErrors(['turno' => 'No existe el turno seleccionado para la fecha.'])->withInput();
         }
         $schedule = $this->schedules->all()->where('turn_id', $turnModel->id)->first();
         if (!$schedule) {
+            session()->flash('toast', [
+                'type' => 'warning',
+                'message' => 'No existe un horario para el turno seleccionado.'
+            ]);
             return back()->withErrors(['turno' => 'No existe un horario para el turno seleccionado.'])->withInput();
         }
         $breakMinutes = $schedule->break ?? 0;
 
         // Validar que las horas estén dentro del turno real
         if ($data['start_time'] < $turnModel->start_time || $data['end_time'] > $turnModel->end_time) {
+            session()->flash('toast', [
+                'type' => 'warning',
+                'message' => 'La hora debe estar dentro del turno seleccionado (' . $turnModel->start_time . ' - ' . $turnModel->end_time . ').'
+            ]);
             return back()->withErrors(['start_time' => 'La hora debe estar dentro del turno seleccionado (' . $turnModel->start_time . ' - ' . $turnModel->end_time . ').'])->withInput();
         }
         $start = Carbon::createFromFormat('H:i', $data['start_time']);
         $end = Carbon::createFromFormat('H:i', $data['end_time']);
         $duration = $start->diffInMinutes($end);
         if ($duration < 30 || $duration > 120) {
+            session()->flash('toast', [
+                'type' => 'warning',
+                'message' => 'La duración debe ser entre 30 minutos y 2 horas.'
+            ]);
             return back()->withErrors(['end_time' => 'La duración debe ser entre 30 minutos y 2 horas.'])->withInput();
         }
 
-        // Buscar espacios ocupados
-        $busySpaces = $this->events->all()
-            ->filter(function($event) use ($data, $turnModel, $breakMinutes) {
-                if ($event->schedule && $event->schedule->turn && $event->schedule->turn->date === $data['date'] && $event->schedule->turn->name === $turnModel->name) {
-                    $eventStartWithBreak = Carbon::createFromFormat('H:i', $event->event_start_time)->subMinutes($breakMinutes)->format('H:i');
-                    $eventEndWithBreak = Carbon::createFromFormat('H:i', $event->event_end_time)->addMinutes($breakMinutes)->format('H:i');
-                    // El espacio está ocupado si el nuevo evento empieza antes de que termine el descanso posterior del evento existente
-                    // o termina después de que empieza el descanso previo del evento existente
-                    return $data['start_time'] < $eventEndWithBreak && $data['end_time'] > $eventStartWithBreak;
-                }
-                return false;
-            })
-            ->pluck('space_id')
-            ->toArray();
+        // Buscar espacios ocupados (eventos y exposiciones)
+        $busySpaces = array_merge(
+            $this->events->all()
+                ->filter(function($event) use ($data, $turnModel, $breakMinutes) {
+                    if ($event->schedule && $event->schedule->turn && $event->schedule->turn->date === $data['date'] && $event->schedule->turn->name === $turnModel->name) {
+                        $eventStart = Carbon::createFromFormat('H:i', $event->event_start_time);
+                        $eventEnd = Carbon::createFromFormat('H:i', $event->event_end_time);
+                        $blockedStart = $eventStart->copy()->subMinutes($breakMinutes);
+                        $blockedEnd = $eventEnd->copy()->addMinutes($breakMinutes);
+                        $newStart = Carbon::createFromFormat('H:i', $data['start_time']);
+                        $newEnd = Carbon::createFromFormat('H:i', $data['end_time']);
+                        return $newStart < $blockedEnd && $newEnd > $blockedStart;
+                    }
+                    return false;
+                })
+                ->pluck('space_id')
+                ->toArray(),
+            $this->expositions->all()
+                ->where('schedule_id', $schedule->id)
+                ->filter(function($expo) use ($data, $breakMinutes) {
+                    $expoStart = Carbon::createFromFormat('H:i', $expo->event_start_time);
+                    $expoEnd = Carbon::createFromFormat('H:i', $expo->event_end_time);
+                    $blockedStart = $expoStart->copy()->subMinutes($breakMinutes);
+                    $blockedEnd = $expoEnd->copy()->addMinutes($breakMinutes);
+                    $newStart = Carbon::createFromFormat('H:i', $data['start_time']);
+                    $newEnd = Carbon::createFromFormat('H:i', $data['end_time']);
+                    return $newStart < $blockedEnd && $newEnd > $blockedStart;
+                })
+                ->pluck('space_id')
+                ->toArray()
+        );
         $freeSpace = $this->spaces->all()
             ->where('space_size', $data['stand_size'])
             ->whereNotIn('id', $busySpaces)
             ->first();
         if (!$freeSpace) {
-            return back()->withErrors(['stand_size' => 'No hay espacios libres del tamaño solicitado en ese turno, fecha y horario.'])->withInput();
+            session()->flash('toast', [
+                'type' => 'warning',
+                'message' => 'No hay espacios disponibles del tamaño solicitado en ese turno, fecha y horario.'
+            ]);
+            return back()->withErrors(['stand_size' => 'No hay espacios disponibles del tamaño solicitado en ese turno, fecha y horario.'])->withInput();
         }
         $data['space_id'] = $freeSpace->id;
 
         // Validar solapamiento de celebridades
         foreach ($data['celebrities'] as $celebrityId) {
-            $overlap = $this->events->all()->filter(function($event) use ($celebrityId, $data, $turnModel) {
-                return $event->celebrities->contains('id', $celebrityId)
+            $overlap = $this->events->all()->filter(function($event) use ($celebrityId, $data, $turnModel, $breakMinutes) {
+                if ($event->celebrities->contains('id', $celebrityId)
                     && $event->schedule && $event->schedule->turn
                     && $event->schedule->turn->date === $data['date']
-                    && $event->schedule->turn->name === $turnModel->name
-                    && (
-                        ($event->event_start_time < $data['end_time'] && $event->event_end_time > $data['start_time'])
-                    );
+                    && $event->schedule->turn->name === $turnModel->name) {
+                    $eventStart = Carbon::createFromFormat('H:i', $event->event_start_time);
+                    $eventEnd = Carbon::createFromFormat('H:i', $event->event_end_time);
+                    $blockedStart = $eventStart->copy()->subMinutes($breakMinutes);
+                    $blockedEnd = $eventEnd->copy()->addMinutes($breakMinutes);
+                    $newStart = Carbon::createFromFormat('H:i', $data['start_time']);
+                    $newEnd = Carbon::createFromFormat('H:i', $data['end_time']);
+                    return $newStart < $blockedEnd && $newEnd > $blockedStart;
+                }
+                return false;
             })->isNotEmpty();
             if ($overlap) {
-                return back()->withErrors(['celebrities' => 'Una de las celebridades ya está ocupada en ese horario.'])->withInput();
+                session()->flash('toast', [
+                    'type' => 'warning',
+                    'message' => 'Una de las celebridades ya está ocupada en ese horario (respetando el descanso antes y después).'
+                ]);
+                return back()->withErrors(['celebrities' => 'Una de las celebridades ya está ocupada en ese horario (respetando el descanso antes y después).'])->withInput();
             }
         }
 
@@ -199,7 +280,7 @@ class EventController extends Controller
         $event = $this->events->create($data);
         $event->celebrities()->sync($request->input('celebrities'));
 
-        return redirect()->route('admin.events.index')->with('success', 'Evento creado correctamente');
+        return redirect()->route('admin.events.index')->with('toast', ['type' => 'success', 'message' => 'Evento creado correctamente']);
     }
 
     public function update(Request $request, $id)
@@ -222,6 +303,10 @@ class EventController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
             'celebrities' => 'required|array|min:1|max:5',
             'celebrities.*' => 'exists:celebrities,id',
+            'short_description' => 'required|string|min:100|max:255',
+            'description' => 'required|string|min:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'type' => 'required|in:General,Premium',
         ],  [
             'company_name.required' => 'El nombre de la empresa es obligatorio.',
             'company_name.regex' => 'El nombre de la empresa solo puede contener letras y espacios.',
@@ -252,7 +337,40 @@ class EventController extends Controller
             'celebrities.required' => 'Debes seleccionar al menos una celebridad.',
             'celebrities.min' => 'Debes seleccionar al menos una celebridad.',
             'celebrities.max' => 'No puedes seleccionar más de 5 celebridades.',
+            'short_description.required' => 'La descripción corta es obligatoria.',
+            'short_description.min' => 'La descripción corta debe tener al menos 100 caracteres.',
+            'short_description.max' => 'La descripción corta no puede superar los 255 caracteres.',
+            'description.required' => 'La descripción es obligatoria.',
+            'description.min' => 'La descripción debe tener al menos 1000 caracteres.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'image.mimes' => 'La imagen debe ser jpeg, png o jpg.',
+            'image.max' => 'La imagen no puede superar los 2MB.',
+            'type.required' => 'El tipo de evento es obligatorio.',
+            'type.in' => 'El tipo debe ser General o Premium.',
+            'website.url' => 'El sitio web debe ser una URL válida.',
         ]);
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $hash = md5_file($file->getRealPath());
+            $extension = $file->getClientOriginalExtension();
+            $filename = $hash . '.' . $extension;
+            $path = 'img/events/' . $filename;
+            if (!Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->putFileAs('img/events', $file, $filename);
+            }
+            // Si la imagen anterior no es la por defecto y es distinta, eliminarla si nadie más la usa
+            if ($event->image && $event->image !== $path && $event->image !== 'img/events/imagen_perfil.png') {
+                $usedByOthers = $this->events->countByImageExceptId($event->image, $event->id);
+                if ($usedByOthers === 0) {
+                    Storage::disk('public')->delete($event->image);
+                }
+            }
+            $data['image'] = $path;
+        } else {
+            // Si no se sube nueva imagen, mantener la actual
+            $data['image'] = $event->image;
+        }
 
         $turnModel = $this->turns->all()->where('date', $data['date'])->where('name', $data['turno'])->first();
         if (!$turnModel) {
@@ -324,7 +442,7 @@ class EventController extends Controller
         $this->events->update($event, $data);
         $event->celebrities()->sync($request->input('celebrities'));
 
-        return redirect()->route('admin.events.index')->with('success', 'Evento actualizado correctamente');
+        return redirect()->route('admin.events.index')->with('toast', ['type' => 'success', 'message' => 'Evento actualizado correctamente']);
     }
 
     public function show($id)
@@ -366,9 +484,17 @@ class EventController extends Controller
     {
         $event = $this->events->find($id);
         if (!$event) {
-            return redirect()->route('admin.events.index')->with('warning', 'Evento no encontrado.');
+            return redirect()->route('admin.events.index')->with('toast', ['type' => 'warning', 'message' => 'Evento no encontrado.']);
         }
+        $image = $event->image;
         $this->events->deleteById($id);
-        return redirect()->route('admin.events.index')->with('success', 'Evento eliminado correctamente.');
+        // Solo eliminar si no es imagen por defecto y nadie más la usa
+        if ($image && $image !== 'img/events/imagen_perfil.png') {
+            $usedByOthers = $this->events->countByImage($image);
+            if ($usedByOthers === 0) {
+                Storage::disk('public')->delete($image);
+            }
+        }
+        return redirect()->route('admin.events.index')->with('toast', ['type' => 'success', 'message' => 'Evento eliminado correctamente.']);
     }
 }

@@ -32,6 +32,13 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <!-- Pasar datos de toast desde PHP a JS -->
+            @if (session('toast'))
+                <script>
+                    window.toastData = @json(session('toast'));
+                </script>
+            @endif
         </div>
     </body>
 </html>

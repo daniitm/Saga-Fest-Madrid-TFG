@@ -12,7 +12,7 @@
     }
 @endphp
 
-<form method="POST" action="{{ $isEdit ? route('admin.events.update', $event) : route('admin.events.store') }}">
+<form method="POST" enctype="multipart/form-data" action="{{ $isEdit ? route('admin.events.update', $event) : route('admin.events.store') }}">
     @csrf
     @if($isEdit) @method('PUT') @endif
 
@@ -63,7 +63,7 @@
             <!-- Web -->
             <div>
                 <label for="website" class="block text-sm font-medium text-gray-700 mb-1">Web</label>
-                <input type="url" name="website" id="website"
+                <input name="website" id="website"
                     value="{{ old('website', $event->website ?? '') }}"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md">
                 @error('website')
@@ -247,6 +247,75 @@
         </div>
     </div>
 
+    <!-- Imagen del Evento -->
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-[#7692FF] mb-4">Imagen del Evento:</h3>    
+        <div class="flex items-center gap-3">
+            <input type="file" name="image" id="image" class="hidden" onchange="updateFileName(this)">
+            <label for="image"
+                class="inline-block px-4 py-2 bg-gray-200 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-300 transition duration-150">
+                Seleccionar archivo
+            </label>
+            <span id="file-name" class="text-sm text-gray-600">
+                @if($isEdit && $event->image && $event->image !== 'img/events/imagen_perfil.png')
+                    {{ basename($event->image) }}
+                @else
+                    Ningún archivo seleccionado
+                @endif
+            </span>
+        </div>
+        @if($isEdit && !empty($event->image))
+            <div class="mb-2 mt-2">
+                <img src="{{ asset('storage/' . $event->image) }}" alt="Imagen actual del evento" class="h-32 rounded shadow mb-2">
+                <p class="text-xs text-gray-500">Imagen actual</p>
+            </div>
+        @endif
+        @error('image')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Breve Descripción -->
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-[#7692FF] mb-4">Breve descripción del Evento:</h3>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Breve descripción *</label>
+        <textarea name="short_description" id="short_description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Entre 100 y 255 caracteres">{{ old('short_description', $event->short_description ?? '') }}</textarea>
+        <p class="text-xs text-gray-500">Mínimo 100 y máximo 255 caracteres.</p>
+        @error('short_description')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Descripción del Evento -->
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-[#7692FF] mb-4">Descripción del Evento:</h3>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción *</label>
+        <textarea name="description" id="description" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Mínimo 1000 caracteres">{{ old('description', $event->description ?? '') }}</textarea>
+        <p class="text-xs text-gray-500">Mínimo 1000 caracteres.</p>
+        @error('description')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Tipo de Evento -->
+    <div class="mb-8">
+        <h3 class="text-lg font-bold text-[#7692FF] mb-4">Tipo de Evento:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                <select name="type" id="type" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="">Selecciona un tipo</option>
+                    @foreach(['General', 'Premium'] as $typeOpt)
+                        <option value="{{ $typeOpt }}" @selected(old('type', $event->type ?? '') === $typeOpt)>{{ $typeOpt }}</option>
+                    @endforeach
+                </select>
+                @error('type')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
+    </div>
+
     <div class="mt-8 flex gap-3">
         <button type="submit"
             class="inline-flex items-center px-6 py-2 bg-[#7692FF] hover:bg-[#1B2CC1] text-white text-base font-semibold rounded transition duration-200">
@@ -380,4 +449,15 @@ document.addEventListener('DOMContentLoaded', function() {
         endTime.value = "{{ $selectedEnd }}";
     }
 });
+</script>
+
+<script>
+function updateFileName(input) {
+    const fileNameSpan = document.getElementById('file-name');
+    if (input.files.length > 0) {
+        fileNameSpan.textContent = input.files[0].name;
+    } else {
+        fileNameSpan.textContent = 'Ningún archivo seleccionado';
+    }
+}
 </script>

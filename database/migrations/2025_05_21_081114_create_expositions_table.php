@@ -13,13 +13,22 @@ return new class extends Migration
     {
         Schema::create('expositions', function (Blueprint $table) {
             $table->id();
-            $table->enum('stand_category ', allowed: ['publishers', 'production companies / platforms', 'videogames', 'merchandising', 'artists / creators', 'cosplay', 'education', 'association']);
-            $table->enum('stand_size', allowed: ['small', 'medium', 'large']);
+            $table->string('company_name');
+            $table->string('contact_person');
+            $table->string('email');
+            $table->string('phone');
+            $table->string('website')->nullable();
+            $table->enum('stand_category', allowed: ['Editoriales', 'Productoras / Plataformas', 'Videojuegos', 'Merchandising', 'Artistas / Creadores', 'Cosplay', 'Educación', 'Asociaciones']);
+            $table->enum('stand_size', allowed: ['Pequeño', 'Medio', 'Grande']);
             $table->boolean('wired_internet');
             $table->boolean('audio_sound_configuration');
-            $table->string('special_requirements');
+            $table->time('event_start_time');
+            $table->time('event_end_time');
+            $table->foreignId('schedule_id')->constrained('schedules')->onDelete('set null');
+            $table->foreignId('space_id')->nullable()->constrained('spaces')->onDelete('set null');
+            $table->text('short_description'); 
+            $table->string('special_requirements')->nullable();
             $table->string('additional_information')->nullable();
-            $table->foreignId('expositor_id')->constrained('expositors')->onDelete('cascade');
             $table->timestamps();
         });
     }

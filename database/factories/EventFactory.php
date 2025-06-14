@@ -21,32 +21,27 @@ class EventFactory extends Factory
 
     public function definition(): array
     {
-        $start = $this->faker->time('H:i:s', '20:00:00');
-        $end = \Carbon\Carbon::parse($start)->addMinutes($this->faker->numberBetween(30, 120))->format('H:i:s');
-
+        $standCategories = ['Editoriales', 'Productoras / Plataformas', 'Videojuegos', 'Merchandising', 'Artistas / Creadores', 'Cosplay', 'Educación', 'Asociaciones'];
+        $standSizes = ['Pequeño', 'Medio', 'Grande'];
+        $types = ['General', 'Premium'];
         return [
-            'company_name' => $this->faker->company(),
-            'contact_person' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'phone' => $this->faker->phoneNumber(),
-            'website' => $this->faker->optional()->url(),
-            'stand_category' => $this->faker->randomElement([
-                'Editoriales',
-                'Productoras / Plataformas',
-                'Videojuegos',
-                'Merchandising',
-                'Artistas / Creadores',
-                'Cosplay',
-                'Educación',
-                'Asociaciones'
-            ]),
-            'stand_size' => $this->faker->randomElement(['Pequeño', 'Medio', 'Grande']),
-            'wired_internet' => $this->faker->boolean(),
-            'audio_sound_configuration' => $this->faker->boolean(),
-            'event_start_time' => $start,
-            'event_end_time' => $end,
-            'space_id' => Space::factory(),
-            'schedule_id' => Schedule::factory(),
+            'company_name' => $this->faker->company,
+            'contact_person' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => $this->faker->phoneNumber,
+            'website' => $this->faker->url,
+            'stand_category' => $this->faker->randomElement($standCategories),
+            'stand_size' => $this->faker->randomElement($standSizes),
+            'wired_internet' => $this->faker->boolean,
+            'audio_sound_configuration' => $this->faker->boolean,
+            'event_start_time' => $this->faker->time('H:i'),
+            'event_end_time' => $this->faker->time('H:i'),
+            'space_id' => null,
+            'schedule_id' => null,
+            'short_description' => $this->faker->realText(60),
+            'description' => $this->faker->realText(120),
+            'image' => 'imagen_perfil.png',
+            'type' => $this->faker->randomElement($types),
         ];
     }
 }

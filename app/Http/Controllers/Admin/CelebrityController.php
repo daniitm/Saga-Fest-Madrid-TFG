@@ -17,10 +17,11 @@ class CelebrityController extends Controller
         $this->celebrities = $celebrities;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $celebrities = $this->celebrities->paginate(15);
-        return view('admin.celebrities.index', compact('celebrities'));
+        $search = $request->input('search');
+        $celebrities = $this->celebrities->paginateWithSearch($search, 15);
+        return view('admin.celebrities.index', compact('celebrities', 'search'));
     }
 
     public function show($id)
@@ -50,7 +51,7 @@ class CelebrityController extends Controller
                 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/u'
             ],
             'email' => 'required|email|max:255|unique:celebrities,email',
-            'biography' => 'required|string|max:1000',
+            'biography' => 'required|string|min:1000',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'category' => 'required|string',
             'website' => 'nullable|url|max:255',
@@ -63,9 +64,11 @@ class CelebrityController extends Controller
             'email.email' => 'El email debe ser una dirección de correo electrónico válida.',
             'email.unique' => 'El email ya está en uso.',
             'biography.required' => 'La biografía es obligatoria.',
-            'biography.max' => 'La biografía no puede exceder los 1000 caracteres.',
+            'biography.min' => 'La biografía debe tener al menos 1000 caracteres.',
             'photo.regex' => 'La fotografía debe ser un archivo tipo imagen.',
+            'photo.max' => 'La fotografía no puede superar los 2MB.',
             'category.required' => 'La categoría es obligatoria.',
+            'website.url' => 'El sitio web debe ser una URL válida.',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -85,7 +88,7 @@ class CelebrityController extends Controller
 
         $this->celebrities->create($data);
 
-        return redirect()->route('admin.celebrities.index')->with('success', 'Celebrity creada correctamente.');
+        return redirect()->route('admin.celebrities.index')->with('toast', ['type' => 'success', 'message' => 'Celebridad creada correctamente.']);
     }
 
     public function edit($id)
@@ -112,7 +115,7 @@ class CelebrityController extends Controller
                 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/u'
             ],
             'email' => 'required|email|max:255|unique:celebrities,email,' . $celebrity->id,
-            'biography' => 'required|string|max:1000',
+            'biography' => 'required|string|min:1000',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'category' => 'required|string',
             'website' => 'nullable|url|max:255',
@@ -125,9 +128,11 @@ class CelebrityController extends Controller
             'email.email' => 'El email debe ser una dirección de correo electrónico válida.',
             'email.unique' => 'El email ya está en uso.',
             'biography.required' => 'La biografía es obligatoria.',
-            'biography.max' => 'La biografía no puede exceder los 1000 caracteres.',
+            'biography.min' => 'La biografía debe tener al menos 1000 caracteres.',
             'photo.regex' => 'La fotografía debe ser un archivo tipo imagen.',
+            'photo.max' => 'La fotografía no puede superar los 2MB.',
             'category.required' => 'La categoría es obligatoria.',
+            'website.url' => 'El sitio web debe ser una URL válida.',
         ]);
 
         if ($request->hasFile('photo')) {
@@ -147,7 +152,8 @@ class CelebrityController extends Controller
 
         $this->celebrities->update($celebrity, $data);
 
-        return redirect()->route('admin.celebrities.index')->with('success', 'Celebrity actualizada correctamente.');
+        return redirect()->route('admin.celebrities.index')
+            ->with('toast', ['type' => 'success', 'message' => 'Celebridad actualizada correctamente.']);
     }
 
     public function destroy($id)
@@ -167,6 +173,7 @@ class CelebrityController extends Controller
             }
         }
 
-        return redirect()->route('admin.celebrities.index')->with('success', 'Celebrity eliminada correctamente.');
+        return redirect()->route('admin.celebrities.index')
+            ->with('toast', ['type' => 'success', 'message' => 'Celebridad eliminada correctamente.']);
     }
 }

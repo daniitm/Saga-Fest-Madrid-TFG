@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('expositors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('company_name');
-            $table->string('contact_person');
+            $table->string('name');
             $table->string('email');
             $table->string('phone');
-            $table->string('website')->nullable();
+            $table->unsignedBigInteger('exposition_id')->unique();
             $table->timestamps();
+
+            $table->foreign('exposition_id')->references('id')->on('expositions')->onDelete('cascade');
         });
     }
 

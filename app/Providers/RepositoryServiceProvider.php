@@ -16,6 +16,10 @@ use App\Repositories\Schedule\ScheduleRepositoryInterface;
 use App\Repositories\Schedule\EloquentScheduleRepository;
 use App\Repositories\Turn\TurnRepositoryInterface;
 use App\Repositories\Turn\EloquentTurnRepository;
+use App\Repositories\Purchase\PurchaseRepositoryInterface;
+use App\Repositories\Purchase\EloquentPurchaseRepository;
+use App\Repositories\Exposition\ExpositionRepositoryInterface;
+use App\Repositories\Exposition\EloquentExpositionRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -32,6 +36,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SpaceRepositoryInterface::class, EloquentSpaceRepository::class);
         $this->app->bind(ScheduleRepositoryInterface::class, EloquentScheduleRepository::class);
         $this->app->bind(TurnRepositoryInterface::class, EloquentTurnRepository::class);
+        $this->app->bind(PurchaseRepositoryInterface::class, EloquentPurchaseRepository::class);
+        $this->app->bind(ExpositionRepositoryInterface::class, EloquentExpositionRepository::class);
     }
 
     /**

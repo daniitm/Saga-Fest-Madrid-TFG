@@ -27,13 +27,17 @@ class AuthenticatedSessionController extends Controller
         $request['email'] = strtolower($request['email']);
 
         $request->authenticate();
+        if (!Auth::user()->hasVerifiedEmail()) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Debes verificar tu correo electrónico antes de iniciar sesión.']);
+        }
         $request->session()->regenerate();
 
         if (Auth::user()->role == 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('dashboard'); 
+        return redirect()->route('home');
     }
 
     /**

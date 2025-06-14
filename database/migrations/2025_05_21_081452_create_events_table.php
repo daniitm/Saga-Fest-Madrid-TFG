@@ -26,6 +26,10 @@ return new class extends Migration
             $table->time('event_end_time');
             $table->foreignId('schedule_id')->constrained('schedules')->onDelete('set null');
             $table->foreignId('space_id')->nullable()->constrained('spaces')->onDelete('set null');
+            $table->text('short_description'); 
+            $table->text('description'); 
+            $table->string('image')->default('imagen_perfil.png'); 
+            $table->enum('type', allowed: ['General', 'Premium']);
             $table->timestamps();
         });
     }

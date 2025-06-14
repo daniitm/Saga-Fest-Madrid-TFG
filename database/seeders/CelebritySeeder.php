@@ -16,6 +16,7 @@ class CelebritySeeder extends Seeder
         for ($i = 1; $i < 20; $i++) {
             Celebrity::factory()->create([
                 'email' => 'patient'.$i.'@example.com',
+                'biography' => fake()->realText(1100, 3), // Biografía extensa (mínimo 1000 caracteres)
             ]);
         }
     }

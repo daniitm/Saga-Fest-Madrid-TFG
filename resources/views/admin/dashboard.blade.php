@@ -62,7 +62,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#7692FF]" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                         <div>
@@ -91,7 +91,7 @@
                     </div>
                 </a>
                 <!-- Expositores -->
-                <a href="#"
+                <a href="{{ route('admin.expositors.index') }}"
                     class="block p-6 rounded-2xl shadow-2xl border-2 border-[#7692FF] bg-white hover:shadow-xl hover:border-[#1B2CC1] transition-all duration-200">
                     <div class="flex items-start gap-4">
                         <div class="rounded-full p-3 flex-shrink-0 bg-[#F3F4F6]">
@@ -108,14 +108,14 @@
                     </div>
                 </a>
                 <!-- Exposiciones -->
-                <a href="#"
-                    class="block p-6 rounded-2xl shadow-2xl border-2 border-[#7692FF] bg-white hover:shadow-xl hover:border-[#1B2CC1] transition-all duration-200">
+                <a href="{{ route('admin.expositions.index') }}"
+                   class="block p-6 rounded-2xl shadow-2xl border-2 border-[#7692FF] bg-white hover:shadow-xl hover:border-[#1B2CC1] transition-all duration-200">
                     <div class="flex items-start gap-4">
                         <div class="rounded-full p-3 flex-shrink-0 bg-[#F3F4F6]">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#7692FF]" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
+                                viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 01-2 2z" />
                             </svg>
                         </div>
                         <div>
@@ -163,10 +163,93 @@
             </div>
 
             <!-- Sección de próximos eventos -->
-            <div class="bg-white rounded-2xl shadow-2xl border-2 border-[#7692FF] p-8">
-                <h3 class="font-semibold text-lg text-[#111215] mb-4">Próximos Eventos</h3>
-                <div class="text-gray-700">
-                    No hay eventos disponibles.
+            <div class="bg-white rounded-2xl shadow-2xl border-2 border-[#7692FF] p-0">
+                <div class="p-6 sm:p-10">
+                    <div class="flex items-center gap-3 mb-6">
+                        <h3 class="font-semibold text-lg sm:text-2xl text-[#111215] flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-[#7692FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 01-2 2z" />
+                            </svg>
+                            Próximos Eventos
+                        </h3>
+                    </div>
+                    @if ($events->isEmpty())
+                        <div class="bg-gray-100 border border-gray-300 rounded-xl p-10 text-center shadow-2xl">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay eventos disponibles</h3>
+                            <p class="text-gray-600 mb-6">Aún no hay eventos programados para mostrar</p>
+                        </div>
+                    @else
+                        <!-- Vista móvil: tarjetas -->
+                        <div class="sm:hidden space-y-4 mb-6">
+                            @foreach ($events as $event)
+                                <div class="bg-white border border-gray-300 rounded-lg shadow p-5 flex flex-col gap-2">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="font-semibold text-gray-900 text-lg">Evento de {{ $event->company_name }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Stand: <span class="font-semibold">{{ $event->stand_category }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Tamaño: <span class="font-semibold">{{ $event->stand_size }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Fecha: <span class="font-semibold">{{ optional(optional($event->schedule)->turn)->date ? \Carbon\Carbon::parse(optional(optional($event->schedule)->turn)->date)->format('d/m/Y') : '-' }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Turno: <span class="font-semibold">{{ optional(optional($event->schedule)->turn)->name ?? '-' }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Hora inicio: <span class="font-semibold">{{ $event->event_start_time ?? '-' }}</span>
+                                    </div>
+                                    <div class="text-gray-700 text-sm flex items-center gap-2">
+                                        Hora fin: <span class="font-semibold">{{ $event->event_end_time ?? '-' }}</span>
+                                    </div>
+                                    <div class="flex gap-2 mt-2">
+                                        <a href="{{ route('admin.events.show', $event) }}"
+                                           class="inline-flex items-center px-3 py-1 bg-[#7692FF] hover:bg-[#1B2CC1] text-white text-xs font-semibold rounded transition duration-200">
+                                            Ver más
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <!-- Vista escritorio: tabla -->
+                        <div class="hidden sm:block overflow-x-auto rounded-xl border border-gray-300 bg-white">
+                            <table class="min-w-full w-full table-fixed divide-y divide-gray-200">
+                                <thead>
+                                    <tr class="bg-[#7692FF]">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Empresa</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Categoría Stand</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Tamaño Stand</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Turno</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Hora inicio</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Hora fin</th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    @foreach ($events as $event)
+                                        <tr class="hover:bg-[#7692FF]/10 transition-colors duration-200 h-16">
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $event->company_name }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $event->stand_category }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $event->stand_size }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ optional(optional($event->schedule)->turn)->date ? \Carbon\Carbon::parse(optional(optional($event->schedule)->turn)->date)->format('d/m/Y') : '-' }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ optional(optional($event->schedule)->turn)->name ?? '-' }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $event->event_start_time ?? '-' }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-900">{{ $event->event_end_time ?? '-' }}</td>
+                                            <td class="px-6 py-4 text-center">
+                                                <a href="{{ route('admin.events.show', $event) }}"
+                                                   class="inline-flex items-center px-3 py-1 bg-[#7692FF] hover:bg-[#1B2CC1] text-white text-xs font-semibold rounded transition duration-200">
+                                                    Ver más
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

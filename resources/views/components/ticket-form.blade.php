@@ -75,12 +75,12 @@
         const applyInput = document.getElementById('apply_to_both');
         if (applyInput.value === '0') {
             applyInput.value = '1';
-            this.classList.add('bg-green-600');
+            this.classList.add('bg-[#7692FF]');
             this.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
             this.textContent = '✓ Aplicando a ambos tipos';
         } else {
             applyInput.value = '0';
-            this.classList.remove('bg-green-600');
+            this.classList.remove('bg-[#7692FF]');
             this.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
             this.textContent = '+ Aplicar a ambos tipos';
         }

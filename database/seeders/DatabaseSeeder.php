@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
         if (env('APP_ENV') === 'local') {
             $this->call([
                 AdminUserSeeder::class,
-                UserSeeder::class,
-                CelebritySeeder::class,
+                //UserSeeder::class,
+                //CelebritySeeder::class,
                 //TicketSeeder::class,
                 //SpaceSeeder::class,
                 //TurnSeeder::class,

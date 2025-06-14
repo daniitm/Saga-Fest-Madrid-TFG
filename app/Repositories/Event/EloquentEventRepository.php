@@ -52,12 +52,14 @@ class EloquentEventRepository implements EventRepositoryInterface
 
     public function update(Event $event, array $data): Event
     {
+        // El repositorio solo actualiza el modelo, no gestiona imágenes
         $event->update($data);
         return $event;
     }
 
     public function delete(Event $event): bool
     {
+        // El repositorio solo elimina el modelo, no gestiona imágenes
         return $event->delete();
     }
 
@@ -65,11 +67,31 @@ class EloquentEventRepository implements EventRepositoryInterface
     {
         $event = Event::find($id);
         if (!$event) return false;
+        // El repositorio solo elimina el modelo, no gestiona imágenes
         return $event->delete();
     }
 
     public function countByStandCategory(string $standCategory): int
     {
         return Event::where('stand_category', $standCategory)->count();
+    }
+    
+    public function countByImageExceptId(string $image, $exceptId): int
+    {
+        return Event::where('image', $image)->where('id', '!=', $exceptId)->count();
+    }
+
+    public function countByImage(string $image): int
+    {
+        return Event::where('image', $image)->count();
+    }
+
+    public function paginateWithSearch(?string $search, int $perPage = 10): LengthAwarePaginator
+    {
+        $query = Event::query();
+        if ($search) {
+            $query->where('company_name', 'like', "%{$search}%");
+        }
+        return $query->orderBy('id', 'desc')->paginate($perPage);
     }
 }

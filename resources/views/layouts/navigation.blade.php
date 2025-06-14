@@ -5,17 +5,17 @@
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}">
-                    <x-application-logo class="block h-9 w-auto fill-current text-white" />
+                    <x-application-logo class="block h-12 w-auto fill-current text-white" />
                 </a>
             </div>
 
             <!-- Center section (for non-authenticated users) - Hidden on mobile -->
             @guest
                 <div class="hidden md:flex items-center space-x-8">
-                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white hover:text-gray-100">
+                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')" class="text-white hover:text-[#7692FF]"  style="font-size: 1em;">
                         {{ __('Iniciar sesión') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('register')" :active="request()->routeIs('register')" class="text-white hover:text-gray-100">
+                    <x-nav-link :href="route('register')" :active="request()->routeIs('register')" class="text-white hover:text-[#7692FF]" style="font-size: 1em;">
                         {{ __('Registrarse') }}
                     </x-nav-link>
                 </div>
@@ -25,12 +25,12 @@
             @auth
                 <div class="hidden md:flex items-center space-x-8">
                     @if (Auth::user()->role == 'admin')
-                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-white hover:text-gray-100">
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="text-white hover:text-[#7692FF]" style="font-size: 1em;">
                             {{ __('Panel de Administración') }}
                         </x-nav-link>
                     @else
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-gray-100">
-                            {{ __('Mi Panel') }}
+                        <x-nav-link :href="route('user.tickets')" :active="request()->routeIs('user.tickets')" class="text-white hover:text-[#7692FF]" style="font-size: 1em;">
+                            {{ __('Mis entradas') }}
                         </x-nav-link>
                     @endif
                     <!-- Settings Dropdown -->
@@ -38,7 +38,7 @@
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button
-                                    class="inline-flex items-center px-3 py-2 border border-transparent leading-4 font-medium rounded-md text-white hover:text-gray-200 focus:outline-none transition ease-in-out duration-150">
+                                    class="inline-flex items-center px-3 py-2 border border-transparent leading-4 font-medium rounded-md text-white hover:text-[#7692FF] focus:outline-none transition ease-in-out duration-150">
                                     <div>{{ ucfirst(Auth::user()->name) }}</div>
                                     <div class="ms-1">
                                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
@@ -109,8 +109,8 @@
                             {{ __('Panel de Administración') }} - {{ Auth::user()->name }}
                         </x-responsive-nav-link>
                     @else
-                        <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="flex justify-start">
-                            {{ __('Mi Panel') }} - {{ Auth::user()->name }}
+                        <x-responsive-nav-link :href="route('user.tickets')" :active="request()->routeIs('user.tickets')" class="flex justify-start">
+                            {{ __('My Tickets') }} - {{ Auth::user()->name }}
                         </x-responsive-nav-link>
                     @endif
                     <x-responsive-nav-link :href="route('profile.edit')" class="flex justify-start">

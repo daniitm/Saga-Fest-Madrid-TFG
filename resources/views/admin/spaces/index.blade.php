@@ -13,11 +13,20 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" />
                             </svg>
-                            Listado de Espacios
+                            Mapa Saga-Fest Madrid 2025
                         </h2>
                     </div>
-                    <div class="flex flex-wrap gap-3 w-full sm:w-auto">
-                        <x-add-button :action="route('admin.tickets.create')" :text="'Nada'" />
+                    <div class="flex flex-col sm:flex-row items-center sm:justify-start gap-8 mb-6">
+                        <div class="flex-shrink-0 w-auto flex justify-start">
+                            <img src="/assets/images/mapasaga-festmadrid.png" alt="Mapa Saga-Fest Madrid" class="h-auto w-72 sm:w-[480px] object-cover rounded-2xl shadow-2xl">
+                        </div>
+                        <ul class="text-[#111215] text-lg font-semibold mb-4 list-disc list-inside sm:text-left sm:ml-2 sm:mr-0">
+                            Estructura de IFEMA Madrid:
+                            <li>Pabellón 5 - C1</li>
+                            <li>Pabellón 6 - C2</li>
+                            <li>Plaza 6.1 - P0</li>
+                            <li>Pabellón 5.1 - Zona gastronómica</li>
+                        </ul>
                     </div>
                 </div>
             </div>
