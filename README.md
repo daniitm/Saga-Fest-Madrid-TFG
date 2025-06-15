@@ -1,23 +1,17 @@
 <p align="center"><img src="public/assets/icons/logosagafestmadrid.svg" width="400" alt="Logo Saga-Fest Madrid"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Saga-Fest Madrid - Proyecto TFG
 
-# Proyecto TFG - Gestión de Eventos y Exposiciones
-
-Este proyecto es una aplicación web desarrollada en Laravel para la gestión de eventos, exposiciones, celebridades, expositores y venta de entradas.
+Este proyecto es una aplicación web desarrollada en Laravel para dar publicidad a un festival de cultura pop, para la gestión de eventos, exposiciones, celebridades, expositores y para facilitar el acceso a través de la venta de entradas online a dicho festival.
 
 ## Características principales
 
-- Gestión de eventos y exposiciones con turnos y horarios.
+- Crud completo de usuarios, celebridades, eventos, exposiciones, expositores, horarios, turnos, espacios y entradas.
+- Gestión de eventos y exposiciones con horarios y turnos.
 - Administración de celebridades y expositores.
-- Sistema de compra y gestión de entradas.
-- Panel de administración para usuarios y roles.
-- Subida y gestión de imágenes para eventos y celebridades.
+- Sistema de compra y gestión de entradas mediante PayPal.
+- Control de las vistas y funciones de los usuarios registrados y no registrados.
+- Manejo de imágenes para eventos y celebridades.
 - Sistema de autenticación y autorización.
 
 ## Requisitos
@@ -26,6 +20,34 @@ Este proyecto es una aplicación web desarrollada en Laravel para la gestión de
 - Composer
 - Node.js y npm
 - SQLite/MySQL/PostgreSQL
+
+## Herramientas empleadas
+
+Backend
+- PHP (lenguaje principal)
+- Laravel (framework principal)
+- Composer (gestor de dependencias PHP)
+- Eloquent ORM (ORM de Laravel)
+- PHPUnit (testing en PHP)
+- Carbon (fechas en PHP)
+- Mail (sistema de correo de Laravel)
+
+Frontend
+- Blade (motor de plantillas de Laravel)
+- Tailwind CSS (framework CSS utilitario)
+- Vite (compilador/bundler de assets JS/CSS)
+- PostCSS (procesador de CSS)
+- JavaScript (para scripts en vistas)
+- Alpine.js (posible, por el uso de x-data en vistas)
+
+Base de datos
+- SQLite (por el archivo database.sqlite)
+- Migrations y Seeders de Laravel
+
+Otros
+Leaflet (api de mapas)
+Node.js (para compilar assets)
+VS Code (por archivos de configuración y estructura)
 
 ## Instalación
 
