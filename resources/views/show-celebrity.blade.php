@@ -20,7 +20,7 @@
                     </div>
                     <!-- Foto a la derecha, columna igual al ancho de la imagen, centrada en móvil -->
                     <div class="flex flex-col items-center justify-start order-1 md:order-2 mx-auto md:mx-0" style="width:288px; min-width:288px; max-width:288px;">
-                        <img src="{{ asset('storage/img/celebrities/' . $celebrity->photo) }}"
+                        <img src="{{ $celebrity->photo ? asset('storage/img/celebrities/' . $celebrity->photo) : asset('img/celebrities/imagen_perfil.png') }}"
                         alt="Foto de {{ $celebrity->name }}"
                         style="width: 288px; height: 288px; object-fit: cover; object-position: center;"
                         class="rounded-lg mb-4 shadow-lg">

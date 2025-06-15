@@ -140,7 +140,7 @@
                                 <div>
                                     <h3 class="text-2xl font-semibold text-white mb-3">Cosplayers</h3>
                                     <p class="text-gray-400 leading-relaxed">
-                                        Quienes dan vida a sus personajes favoritos con habilidad, pasión y arte, haciéndote sentir en una verdadera película.
+                                        Quienes dan vida a sus personajes favoritos with habilidad, pasión y arte, haciéndote sentir en una verdadera película.
                                     </p>
                                 </div>
                             </div>
@@ -234,7 +234,7 @@
                         <div class="bg-gray-50 rounded-2xl p-8 sm:p-10 shadow-2xl" style="background-color: #363636;">
                             <div class="space-y-6">
                                 <div class="w-full flex justify-center">
-                                    <img src="{{ asset('storage/img/celebrities/' . ($celebrity->photo ?? 'imagen_perfil.png')) }}"
+                                    <img src="{{ $celebrity->photo ? asset('storage/img/celebrities/' . $celebrity->photo) : asset('img/celebrities/imagen_perfil.png') }}"
                                         alt="{{ $celebrity->name }} {{ $celebrity->surnames }}"
                                         class="rounded-lg w-full h-80 object-cover object-center mb-4" />
                                 </div>
