@@ -45,9 +45,9 @@ Base de datos
 - Migrations y Seeders de Laravel
 
 Otros
-Leaflet (api de mapas)
-Node.js (para compilar assets)
-VS Code (por archivos de configuración y estructura)
+- Leaflet (api de mapas)
+- Node.js (para compilar assets)
+- VS Code (por archivos de configuración y estructura)
 
 ## Instalación
 
