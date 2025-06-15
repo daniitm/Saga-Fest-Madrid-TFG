@@ -161,7 +161,7 @@ class EventController extends Controller
             }
             $data['image'] = $path;
         } else {
-            $data['image'] = 'img/events/imagen_perfil.png';
+            $data['image'] = 'imagen_perfil.png'; // Valor por defecto simple
         }
 
         // Buscar el turno real según fecha y nombre

@@ -17,7 +17,11 @@
                     <div class="flex flex-col sm:flex-row">
                         <!-- Columna Izquierda: ancho fijo, alineado a la izquierda con menos padding -->
                         <div class="w-full sm:w-48 flex flex-col items-center justify-center sm:items-start sm:justify-start pl-0 sm:pl-1 mb-2 sm:mb-0">
-                            <img src="{{ $celebrity->photo ? asset('storage/img/celebrities/' . $celebrity->photo) : asset('img/celebrities/imagen_perfil.png') }}"
+                            <img src="{{
+                                $celebrity->photo && !Str::contains($celebrity->photo, 'imagen_perfil.png')
+                                    ? asset('storage/img/celebrities/' . $celebrity->photo)
+                                    : asset('assets/img/celebrities/imagen_perfil.png')
+                            }}"
                                 alt="Foto de {{ $celebrity->name }}"
                                 class="w-40 h-40 object-cover rounded-lg shadow-lg mb-2 mx-auto sm:mx-0">
                         </div>

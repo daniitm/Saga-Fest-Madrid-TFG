@@ -125,7 +125,7 @@
                     <div class="mb-8">
                         <h3 class="text-lg font-bold text-[#7692FF] mb-4">Requerimientos Especiales:</h3>
                         @if($exposition->special_requirements)
-                            <a href="{{ $exposition->special_requirements }}" class="text-[#7692FF] underline hover:text-[#1B2CC1] transition" target="_blank">Enlace</a>
+                            <span class="text-gray-900">{{ $exposition->special_requirements }}</span>
                         @else
                             <span class="text-gray-900">-</span>
                         @endif
@@ -135,7 +135,7 @@
                     <div class="mb-8">
                         <h3 class="text-lg font-bold text-[#7692FF] mb-4">Información Adicional:</h3>
                         @if($exposition->additional_information)
-                            <a href="{{ $exposition->additional_information }}" class="text-[#7692FF] underline hover:text-[#1B2CC1] transition" target="_blank">Enlace</a>
+                            <span class="text-gray-900">{{ $exposition->additional_information }}</span>
                         @else
                             <span class="text-gray-900">-</span>
                         @endif

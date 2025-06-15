@@ -234,7 +234,11 @@
                         <div class="bg-gray-50 rounded-2xl p-8 sm:p-10 shadow-2xl" style="background-color: #363636;">
                             <div class="space-y-6">
                                 <div class="w-full flex justify-center">
-                                    <img src="{{ $celebrity->photo ? asset('storage/img/celebrities/' . $celebrity->photo) : asset('img/celebrities/imagen_perfil.png') }}"
+                                    <img src="{{
+                                        $celebrity->photo && !Str::contains($celebrity->photo, 'imagen_perfil.png')
+                                            ? asset('storage/img/celebrities/' . $celebrity->photo)
+                                            : asset('assets/img/celebrities/imagen_perfil.png')
+                                    }}"
                                         alt="{{ $celebrity->name }} {{ $celebrity->surnames }}"
                                         class="rounded-lg w-full h-80 object-cover object-center mb-4" />
                                 </div>
@@ -278,7 +282,11 @@
                     <a href="{{ route('event.show', $event->id) }}" class="group block rounded-2xl overflow-hidden shadow-2xl bg-gray-50 hover:scale-[1.01] transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary" style="background-color: #363636;">
                         <div class="flex flex-col sm:flex-row items-stretch">
                             <div class="sm:w-1/3 w-full flex-shrink-0 flex items-center justify-center bg-black/10">
-                                <img src="{{ asset('storage/' . ($event->image ?? 'img/events/imagen_perfil.png')) }}"
+                                <img src="{{
+                                    $event->image && !Str::contains($event->image, 'imagen_perfil.png')
+                                        ? asset('storage/' . $event->image)
+                                        : asset('assets/img/events/imagen_perfil.png')
+                                }}"
                                      alt="{{ $event->company_name ?? $event->title }}"
                                      class="object-cover object-center w-full h-48 sm:h-44 md:h-56 lg:h-60" />
                             </div>

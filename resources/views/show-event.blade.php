@@ -20,7 +20,11 @@
                     </div>
                     <!-- Imagen a la derecha -->
                     <div class="flex flex-col items-center justify-start order-1 md:order-2 mx-auto md:mx-0" style="width:288px; min-width:288px; max-width:288px;">
-                        <img src="{{ asset('storage/' . ($event->image ?? 'img/events/imagen_perfil.png')) }}"
+                        <img src="{{
+                            $event->image && !Str::contains($event->image, 'imagen_perfil.png')
+                                ? asset('storage/' . $event->image)
+                                : asset('assets/img/events/imagen_perfil.png')
+                        }}"
                         alt="Imagen de {{ $event->company_name }}"
                         style="width: 288px; height: 288px; object-fit: cover; object-position: center;"
                         class="rounded-lg mb-4 shadow-lg">

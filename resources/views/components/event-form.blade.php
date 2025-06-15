@@ -249,27 +249,23 @@
 
     <!-- Imagen del Evento -->
     <div class="mb-8">
-        <h3 class="text-lg font-bold text-[#7692FF] mb-4">Imagen del Evento:</h3>    
+       <h3 class="text-lg font-bold text-[#7692FF] mb-4">Imagen del Evento:</h3>   
         <div class="flex items-center gap-3">
-            <input type="file" name="image" id="image" class="hidden" onchange="updateFileName(this)">
+            <input type="file" name="image" id="image"
+                class="hidden"
+                onchange="updateFileName(this)">
             <label for="image"
                 class="inline-block px-4 py-2 bg-gray-200 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-300 transition duration-150">
                 Seleccionar archivo
             </label>
             <span id="file-name" class="text-sm text-gray-600">
-                @if($isEdit && $event->image && $event->image !== 'img/events/imagen_perfil.png')
-                    {{ basename($event->image) }}
+                @if(isset($event) && $event->image && $event->image !== 'imagen_perfil.png')
+                    {{ $event->image }}
                 @else
                     Ningún archivo seleccionado
                 @endif
             </span>
-        </div>
-        @if($isEdit && !empty($event->image))
-            <div class="mb-2 mt-2">
-                <img src="{{ asset('storage/' . $event->image) }}" alt="Imagen actual del evento" class="h-32 rounded shadow mb-2">
-                <p class="text-xs text-gray-500">Imagen actual</p>
-            </div>
-        @endif
+        </div>                
         @error('image')
             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
         @enderror

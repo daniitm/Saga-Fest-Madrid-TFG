@@ -84,6 +84,8 @@ class CelebrityController extends Controller
             }
 
             $data['photo'] = $filename;
+        } else {
+            $data['photo'] = 'imagen_perfil.png'; // Valor por defecto simple
         }
 
         $this->celebrities->create($data);
@@ -148,6 +150,8 @@ class CelebrityController extends Controller
             }
 
             $data['photo'] = $filename;
+        } else {
+            $data['photo'] = 'imagen_perfil.png'; // Valor por defecto simple
         }
 
         $this->celebrities->update($celebrity, $data);

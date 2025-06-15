@@ -135,7 +135,11 @@
                     <!-- Imagen del Evento -->
                     <div class="mb-8">
                         <h3 class="text-lg font-bold text-[#7692FF] mb-4">Imagen del Evento:</h3>
-                        <img src="{{ asset('storage/' . ($event->image ?? 'img/events/imagen_perfil.png')) }}" alt="Imagen del evento" class="h-32 rounded shadow mt-2">
+                        <img src="{{
+                            $event->image && !Str::contains($event->image, 'imagen_perfil.png')
+                                ? asset('storage/' . $event->image)
+                                : asset('assets/img/events/imagen_perfil.png')
+                        }}" alt="Imagen del evento" class="h-32 rounded shadow mt-2">
                     </div>
 
                     <!-- Descripción corta -->

@@ -18,7 +18,11 @@
                         <div class="bg-gray-50 rounded-2xl p-8 sm:p-10 shadow-2xl" style="background-color: #363636;">
                             <div class="space-y-6">
                                 <div class="w-full flex justify-center">
-                                    <img src="{{ $celebrity->photo ? asset('storage/img/celebrities/' . $celebrity->photo) : asset('img/celebrities/imagen_perfil.png') }}"
+                                    <img src="{{
+                                        $celebrity->photo && !Str::contains($celebrity->photo, 'imagen_perfil.png')
+                                            ? asset('storage/img/celebrities/' . $celebrity->photo)
+                                            : asset('assets/img/celebrities/imagen_perfil.png')
+                                    }}"
                                         alt="{{ $celebrity->name }} {{ $celebrity->surnames }}"
                                         class="rounded-lg w-full h-80 object-cover object-center mb-4" />
                                 </div>
