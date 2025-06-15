@@ -29,58 +29,40 @@ Este proyecto es una aplicación web desarrollada en Laravel para la gestión de
 
 ## Instalación
 
-1. Clona el repositorio:
+Clona el repositorio:
    ```bash
    git clone https://github.com/tuusuario/tu-repo-tfg.git
    cd tu-repo-tfg
    ```
-2. Instala dependencias PHP y JS:
+Instala dependencias PHP y JS:
    ```bash
    composer install
    npm install && npm run build
    ```
-3. Copia el archivo de entorno y configura tus variables:
+Copia el archivo de entorno y configura tus variables:
    ```bash
    cp .env.example .env
    # Edita .env con tus datos
    ```
-4. Genera la clave de la aplicación:
+Genera la clave de la aplicación:
    ```bash
    php artisan key:generate
    ```
-5. Ejecuta migraciones y seeders:
+Ejecuta migraciones y seeders:
    ```bash
    php artisan migrate --seed
    ```
-6. (Opcional) Crea el enlace simbólico para las imágenes subidas:
+Crea el enlace simbólico para las imágenes subidas:
    ```bash
    php artisan storage:link
    ```
-7. Inicia el servidor de desarrollo:
+
+## Uso
+
+Inicia el servidor de desarrollo::
+   ```bash
+   npm run dev
+   ```
    ```bash
    php artisan serve
    ```
-
-## Imágenes por defecto
-
-Asegúrate de que existen las imágenes por defecto:
-- `public/assets/img/celebrities/imagen_perfil.png`
-- `public/assets/img/events/imagen_perfil.png`
-
-Estas se mostrarán cuando no se suba ninguna imagen para celebridades o eventos.
-
-## Aprendiendo Laravel
-
-Consulta la [documentación oficial de Laravel](https://laravel.com/docs) o el [Laravel Bootcamp](https://bootcamp.laravel.com) para aprender más sobre el framework.
-
-## Contribuir
-
-¡Gracias por considerar contribuir a este proyecto! Puedes abrir issues o pull requests siguiendo las buenas prácticas de la comunidad Laravel.
-
-## Seguridad
-
-Si encuentras una vulnerabilidad de seguridad, por favor contacta al mantenedor del repositorio.
-
-## Licencia
-
-Este proyecto está licenciado bajo la [MIT license](https://opensource.org/licenses/MIT).
