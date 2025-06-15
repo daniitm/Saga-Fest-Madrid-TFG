@@ -20,7 +20,7 @@ Este proyecto es una aplicación web desarrollada en Laravel para dar publicidad
 - Composer
 - Node.js y npm
 - SQLite
-- 
+
 ## Herramientas empleadas
 
 Backend
