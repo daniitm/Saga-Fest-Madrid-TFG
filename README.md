@@ -19,8 +19,8 @@ Este proyecto es una aplicación web desarrollada en Laravel para dar publicidad
 - PHP >= 8.1
 - Composer
 - Node.js y npm
-- SQLite/MySQL/PostgreSQL
-
+- SQLite
+- 
 ## Herramientas empleadas
 
 Backend
@@ -28,8 +28,6 @@ Backend
 - Laravel (framework principal)
 - Composer (gestor de dependencias PHP)
 - Eloquent ORM (ORM de Laravel)
-- PHPUnit (testing en PHP)
-- Carbon (fechas en PHP)
 - Mail (sistema de correo de Laravel)
 
 Frontend
